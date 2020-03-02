@@ -1,3 +1,24 @@
-#index:
-#    path: /
-#    controller: App\Controller\DefaultController::index
+api_login:
+    path: /api/login
+    methods: [POST]
+
+api_todos:
+    path: /api/todos/
+    methods: [GET]
+    controller: App\Controller\TodoController::getAll
+api_todo:
+    path: /api/todos/{id}
+    methods: [GET]
+    controller: App\Controller\TodoController::getOne
+api_todo_update:
+    path: /api/todos/{id}
+    methods: [PUT]
+    controller: App\Controller\TodoController::update
+api_todo_delete:
+    path: /api/todos/{id}
+    methods: [DELETE]
+    controller: App\Controller\TodoController::delete
+api_todo_create:
+    path: /api/todos
+    methods: [POST]
+    controller: App\Controller\TodoController::create

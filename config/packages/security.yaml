@@ -7,6 +7,8 @@ security:
     providers:
         # used to reload user from session & other features (e.g. switch_user)
         app_user_provider:
+            id: App\Security\UserProvider
+        entity_user_provider:
             entity:
                 class: App\Entity\User
                 property: email
@@ -16,7 +18,20 @@ security:
             security: false
         main:
             anonymous: lazy
-            provider: app_user_provider
+            pattern: ^/api/
+            stateless: true
+            form_login:
+                provider: app_user_provider
+                login_path: api_login
+                check_path: api_login
+                username_parameter: email
+                password_parameter: password
+            guard:
+                provider: app_user_provider
+                entry_point: App\Security\LoginAuthenticator
+                authenticators:
+                    - App\Security\TokenAuthenticator
+                    - App\Security\LoginAuthenticator
 
             # activate different ways to authenticate
             # https://symfony.com/doc/current/security.html#firewalls-authentication
@@ -27,5 +42,5 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
-        # - { path: ^/admin, roles: ROLE_ADMIN }
+         - { path: ^/api/$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
         # - { path: ^/profile, roles: ROLE_USER }
