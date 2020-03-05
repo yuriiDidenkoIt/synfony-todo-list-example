@@ -63,7 +63,7 @@ class LoginAuthenticator extends AbstractGuardAuthenticator
      */
     public function start(Request $request, AuthenticationException $authException = null): JsonResponse
     {
-        return new JsonResponse(['message' => 'Wrong credentials'], Response::HTTP_UNAUTHORIZED);
+        return new JsonResponse(['message' => 'Wrong Credentials'], Response::HTTP_UNAUTHORIZED);
     }
 
     /**
