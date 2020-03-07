@@ -28,11 +28,6 @@ class LoginAuthenticatorTest extends WebTestCase
     private $jsonDecoder;
 
     /**
-     * @var LoginAuthenticator
-     */
-    private $loginAuthenticator;
-
-    /**
      * @inheritDoc
      */
     protected function setUp(): void
@@ -84,8 +79,8 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testStart(): void
     {
-        $this->setLoginAuthenticator();
-        $actual = $this->loginAuthenticator->start(new Request());
+        $loginAuthenticator = $this->getLoginAuthenticator();
+        $actual = $loginAuthenticator->start(new Request());
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $actual->getStatusCode());
 
         $expected = ['message' => 'Wrong Credentials'];
@@ -97,13 +92,13 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testSupports(): void
     {
-        $this->setLoginAuthenticator();
+        $loginAuthenticator = $this->getLoginAuthenticator();
         $request = new Request([], [], ['_route' => 'api_login']);
-        $actual = $this->loginAuthenticator->supports($request);
+        $actual = $loginAuthenticator->supports($request);
         $this->assertTrue($actual);
 
         $request = new Request([], [], ['_route' => 'api_todo']);
-        $actual = $this->loginAuthenticator->supports($request);
+        $actual = $loginAuthenticator->supports($request);
         $this->assertFalse($actual);
     }
 
@@ -112,14 +107,14 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testGetCredentials(): void
     {
-        $this->setLoginAuthenticator();
+        $loginAuthenticator = $this->getLoginAuthenticator();
         $data = ['email'=> 'test@email.com', 'password' => '12345'];
         $request = new Request([], $data);
-        $actual = $this->loginAuthenticator->getCredentials($request);
+        $actual = $loginAuthenticator->getCredentials($request);
         $this->assertEquals($data, $actual);
 
         $request = new Request();
-        $actual = $this->loginAuthenticator->getCredentials($request);
+        $actual = $loginAuthenticator->getCredentials($request);
         $this->assertEquals(['email'=> '', 'password' => ''], $actual);
     }
 
@@ -128,16 +123,16 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testGetUser(): void
     {
-        $this->setLoginAuthenticator();
+        $loginAuthenticator = $this->getLoginAuthenticator();
         $user = new User();
         $user->setEmail('test@gmail.com');
         $user->setPassword('123456');
         $userProvider = $this->createMock(UserProvider::class);
         $userProvider->expects($this->any())->method('loadUserByUsername')->willReturn($user);
-        $this->assertEquals($user, $this->loginAuthenticator->getUser(['email' => 'test@gmail.com'], $userProvider));
+        $this->assertEquals($user, $loginAuthenticator->getUser(['email' => 'test@gmail.com'], $userProvider));
 
         $provider = $this->createMock(UserProviderInterface::class);
-        $this->assertNull($this->loginAuthenticator->getUser([], $provider));
+        $this->assertNull($loginAuthenticator->getUser([], $provider));
     }
 
     /**
@@ -145,18 +140,18 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testCheckCredentials(): void
     {
-        $this->setLoginAuthenticator();
+        $loginAuthenticator = $this->getLoginAuthenticator();
         $user = new User();
 
-        $actual = $this->loginAuthenticator->checkCredentials(['password' => '12345'], $user);
+        $actual = $loginAuthenticator->checkCredentials(['password' => '12345'], $user);
         $this->assertTrue($actual);
 
-        $this->setLoginAuthenticator(false);
+        $loginAuthenticator = $this->getLoginAuthenticator(false);
         $this->expectException(CustomUserMessageAuthenticationException::class);
-        $this->loginAuthenticator->checkCredentials(['password' => '12345'], $user);
+        $loginAuthenticator->checkCredentials(['password' => '12345'], $user);
 
         $this->expectExceptionMessage('Wrong Credentials');
-        $this->loginAuthenticator->checkCredentials(['password' => '12345'], $user);
+        $loginAuthenticator->checkCredentials(['password' => '12345'], $user);
     }
 
     /**
@@ -164,14 +159,14 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testOnAuthenticationFailure(): void
     {
-        $this->setLoginAuthenticator();
+        $loginAuthenticator = $this->getLoginAuthenticator();
         $exception = $this->createMock(AuthenticationException::class);
         $exception->expects($this->any())
             ->method('getMessageKey')
             ->willReturn('An authentication exception occurred.');
         $exception->expects($this->any())->method('getMessageData')->willReturn([]);
 
-        $actual = $this->loginAuthenticator->onAuthenticationFailure(new Request(), $exception);
+        $actual = $loginAuthenticator->onAuthenticationFailure(new Request(), $exception);
         $this->assertEquals(Response::HTTP_UNAUTHORIZED, $actual->getStatusCode());
 
         $expected = ['message' => 'An authentication exception occurred.'];
@@ -183,7 +178,7 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testOnAuthenticationSuccess(): void
     {
-        $this->setLoginAuthenticator();
+        $loginAuthenticator = $this->getLoginAuthenticator();
         $token = $this->createMock(TokenInterface::class);
         $user = new User();
         $user->setEmail('yurii@email.com');
@@ -191,7 +186,7 @@ class LoginAuthenticatorTest extends WebTestCase
         $token->expects($this->any())->method('getUsername')->willReturn($user->getUsername());
         $token->expects($this->any())->method('getUser')->willReturn($user);
 
-        $actual = $this->loginAuthenticator->onAuthenticationSuccess(new Request(), $token, 'key');
+        $actual = $loginAuthenticator->onAuthenticationSuccess(new Request(), $token, 'key');
         $this->assertEquals(Response::HTTP_OK, $actual->getStatusCode());
 
         $expected = ['token' => 'some_token'];
@@ -203,8 +198,8 @@ class LoginAuthenticatorTest extends WebTestCase
      */
     public function testSupportsRememberMe(): void
     {
-        $this->setLoginAuthenticator();
-        $this->assertFalse($this->loginAuthenticator->supportsRememberMe());
+        $loginAuthenticator = $this->getLoginAuthenticator();
+        $this->assertFalse($loginAuthenticator->supportsRememberMe());
     }
 
     /**
@@ -212,7 +207,7 @@ class LoginAuthenticatorTest extends WebTestCase
      *
      * @throws \Exception
      */
-    private function setLoginAuthenticator(bool $isPasswordValid = true)
+    private function getLoginAuthenticator(bool $isPasswordValid = true): LoginAuthenticator
     {
         $passwordEncoder = $this->createMock(UserPasswordEncoderInterface::class);
         $passwordEncoder->expects($this->any())->method('isPasswordValid')->willReturn($isPasswordValid);
@@ -221,6 +216,7 @@ class LoginAuthenticatorTest extends WebTestCase
         $logger = $this->createMock(LoggerInterface::class);
         $logger->expects($this->any())->method('info')->willReturn(true);
         $logger->expects($this->any())->method('warning')->willReturn(true);
-        $this->loginAuthenticator = new LoginAuthenticator($passwordEncoder, $tokenService, $logger);
+
+        return new LoginAuthenticator($passwordEncoder, $tokenService, $logger);
     }
 }

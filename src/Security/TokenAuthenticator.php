@@ -104,7 +104,7 @@ class TokenAuthenticator extends AbstractGuardAuthenticator
             || !$userProvider instanceof UserProvider
             || !$user = $userProvider->loadUserByToken($credentials)
         ) {
-            throw new CustomUserMessageAuthenticationException('Wrong credentials');
+            throw new CustomUserMessageAuthenticationException('Wrong Credentials');
         }
 
         return $user;

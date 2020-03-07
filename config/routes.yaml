@@ -3,7 +3,7 @@ api_login:
     methods: [POST]
 
 api_todos:
-    path: /api/todos/
+    path: /api/todos
     methods: [GET]
     controller: App\Controller\TodoController::getAll
 api_todo:
