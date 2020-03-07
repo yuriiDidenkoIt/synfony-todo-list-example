@@ -7,7 +7,7 @@ use App\Security\LoginAuthenticator;
 use App\Security\UserProvider;
 use App\Service\UserTokenService;
 use PhpParser\JsonDecoder;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
@@ -213,10 +213,7 @@ class LoginAuthenticatorTest extends WebTestCase
         $passwordEncoder->expects($this->any())->method('isPasswordValid')->willReturn($isPasswordValid);
         $tokenService = $this->createMock(UserTokenService::class);
         $tokenService->expects($this->any())->method('update')->willReturn(true);
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->any())->method('info')->willReturn(true);
-        $logger->expects($this->any())->method('warning')->willReturn(true);
 
-        return new LoginAuthenticator($passwordEncoder, $tokenService, $logger);
+        return new LoginAuthenticator($passwordEncoder, $tokenService, new NullLogger());
     }
 }

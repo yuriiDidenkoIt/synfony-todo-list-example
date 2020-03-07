@@ -9,7 +9,7 @@ use App\Security\UserProvider;
 use App\Service\DateTimeService;
 use App\Service\UserTokenService;
 use PhpParser\JsonDecoder;
-use Psr\Log\LoggerInterface;
+use Psr\Log\NullLogger;
 use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -190,10 +190,6 @@ class TokenAuthenticatorTest extends WebTestCase
      */
     private function getTokenAuthenticator(bool $isTokenValid = true): TokenAuthenticator
     {
-        $logger = $this->createMock(LoggerInterface::class);
-        $logger->expects($this->any())->method('info')->willReturn(true);
-        $logger->expects($this->any())->method('warning')->willReturn(true);
-
         $tokenService = $this->createMock(UserTokenService::class);
         $tokenService->expects($this->any())->method('update')->willReturn(true);
         $tokenService->expects($this->any())->method('prolong')->willReturn(true);
@@ -201,6 +197,6 @@ class TokenAuthenticatorTest extends WebTestCase
         $dateTimeService = $this->createMock(DateTimeService::class);
         $dateTimeService->expects($this->any())->method('isPast')->willReturn($isTokenValid);
 
-        return new TokenAuthenticator($logger, $dateTimeService, $tokenService);
+        return new TokenAuthenticator(new NullLogger(), $dateTimeService, $tokenService);
     }
 }
