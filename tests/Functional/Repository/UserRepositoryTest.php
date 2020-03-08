@@ -17,6 +17,9 @@ class UserRepositoryTest extends KernelTestCase
      */
     private $entityManager;
 
+    /**
+     * @inheritDoc
+     */
     protected function setUp(): void
     {
         $kernel = self::bootKernel();
