@@ -13,7 +13,9 @@ use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 class UserFixture extends Fixture
 {
     public const VALID_TOKEN = 'VALID_TOKEN';
+    public const VALID_EMAIL = 'valid@gmail.com';
     public const EXPIRED_TOKEN = 'EXPIRED_TOKEN';
+    public const EXPIRED_EMAIL = 'expired@gmail.com';
     /**
      * @var UserPasswordEncoderInterface
      */
@@ -41,7 +43,7 @@ class UserFixture extends Fixture
         $manager->persist($user);
 
         $user = new User();
-        $user->setEmail('valid@gmail.com');
+        $user->setEmail(self::VALID_EMAIL);
         $password = $this->encoder->encodePassword($user, '123456');
         $user->setPassword($password);
         $date = (new \DateTime())->modify('+ 100 year');
@@ -50,7 +52,7 @@ class UserFixture extends Fixture
         $manager->persist($user);
 
         $user = new User();
-        $user->setEmail('expired@gmail.com');
+        $user->setEmail(self::EXPIRED_EMAIL);
         $password = $this->encoder->encodePassword($user, '123456');
         $user->setPassword($password);
         $date = (new \DateTime())->modify('- 1 hour');
